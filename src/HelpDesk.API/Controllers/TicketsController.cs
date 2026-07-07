@@ -8,6 +8,12 @@ public class TicketsController(ISender sender) : ControllerBase
 {
     private readonly ISender _sender = sender;
 
+    [HttpGet]
+    public async Task<IActionResult> test()
+    {
+        return Ok();
+    }
+
     [HttpGet("{Id}")]
     public async Task<IActionResult> Get([FromRoute] int Id, CancellationToken cancellationToken)
     {
