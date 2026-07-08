@@ -77,4 +77,10 @@ public class TicketsController(ISender sender) : ControllerBase
         var result = await _sender.Send(new ReopenTicketCommand(Id), cancellationToken);
         return result.IsSuccess ? NoContent() : result.ToProblem();
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> test2()
+    {
+        return Ok();
+    }
 }
