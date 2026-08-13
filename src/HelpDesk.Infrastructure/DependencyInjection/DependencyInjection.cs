@@ -12,6 +12,18 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider => 
             provider.GetRequiredService<ApplicationDbContext>());
 
+        services.AddHttpContextAccessor();
+
+        services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
+
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
+
+        services.AddScoped<IJwtProvider, JwtProvider>();
+
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+
+        services.AddScoped<ICurrentUserService, CurrentUserService>();
+
         return services;
     }
 }

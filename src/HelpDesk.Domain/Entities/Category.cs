@@ -1,4 +1,6 @@
-﻿namespace HelpDesk.Domain.Entities;
+﻿using HelpDesk.Domain.Common.Primitives;
+
+namespace HelpDesk.Domain.Entities;
 
 public sealed class Category : Entity
 {

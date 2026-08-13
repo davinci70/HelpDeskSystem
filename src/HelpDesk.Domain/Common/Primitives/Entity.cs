@@ -1,4 +1,4 @@
-﻿namespace HelpDesk.Domain.Common;
+﻿namespace HelpDesk.Domain.Common.Primitives;
 
 public abstract class Entity
 {

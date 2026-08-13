@@ -1,8 +1,9 @@
 ﻿namespace HelpDesk.Application.Tickets.Commands.CloseTicket;
 
-public class CloseTicketCommandHandler(IApplicationDbContext context) : IRequestHandler<CloseTicketCommand, Result>
+public class CloseTicketCommandHandler(IApplicationDbContext context, ICurrentUserService currentUser) : IRequestHandler<CloseTicketCommand, Result>
 {
     private readonly IApplicationDbContext _context = context;
+    private readonly ICurrentUserService _currentUser = currentUser;
 
     public async Task<Result> Handle(CloseTicketCommand request, CancellationToken cancellationToken)
     {
@@ -11,11 +12,11 @@ public class CloseTicketCommandHandler(IApplicationDbContext context) : IRequest
         if (ticket is null)
             return Result.Failure(TicketErrors.TicketNotFound);
 
-        if (!ticket.Close())
+        if (!ticket.Close(_currentUser.UserId!.Value))
             return Result.Failure(TicketErrors.CannotClose);
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(ticket);
+        return Result.Success();
     }
 }

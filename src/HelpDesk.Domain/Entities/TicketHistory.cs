@@ -1,4 +1,6 @@
-﻿namespace HelpDesk.Domain.Entities;
+﻿using HelpDesk.Domain.Entities.Tickets;
+
+namespace HelpDesk.Domain.Entities;
 
 public class TicketHistory
 {
@@ -33,12 +35,12 @@ public class TicketHistory
             "Ticket created.");
     }
 
-    public static TicketHistory Assigned(int ticketId, string agentName)
+    public static TicketHistory Assigned(int ticketId, int userId)
     {
         return new TicketHistory(
             ticketId,
             TicketHistoryType.Assigned,
-            $"Assigned to {agentName}.");
+            $"Assigned to user with Id = {userId}.");
     }
 
     public static TicketHistory Started(int ticketId)

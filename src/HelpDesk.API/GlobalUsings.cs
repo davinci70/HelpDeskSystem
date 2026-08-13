@@ -18,3 +18,8 @@ global using HelpDesk.Application.Tickets.Commands.StartTicketProcess;
 global using HelpDesk.Application.Tickets.Commands.ResolveTicket;
 global using HelpDesk.Application.Tickets.Commands.CloseTicket;
 global using HelpDesk.Application.Tickets.Commands.ReopenTicket;
+global using HelpDesk.Application.Authentication.Login;
+global using HelpDesk.Application.Authentication.Register;
+global using HelpDesk.API;
+global using Microsoft.AspNetCore.Authorization;
+global using Serilog;

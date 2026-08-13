@@ -2,5 +2,5 @@
 
 public record AssignTicketCommand(
     int TicketId,
-    int AgentId
+    int UserId
 ) : ICommand;

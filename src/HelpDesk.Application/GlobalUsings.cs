@@ -17,3 +17,8 @@ global using HelpDesk.Application.Common.Models;
 global using HelpDesk.Application.Tickets.Commands.CreateTicket;
 global using HelpDesk.Application.Tickets.Queries.GetTickets;
 global using HelpDesk.Application.Errors;
+global using HelpDesk.Domain.Common.DomainEvents;
+global using HelpDesk.Domain.Entities.Tickets.Events;
+global using HelpDesk.Domain.Entities.Tickets;
+global using HelpDesk.Domain.Entities.Users;
+global using HelpDesk.Application.Common.Interfaces;

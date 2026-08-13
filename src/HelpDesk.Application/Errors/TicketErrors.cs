@@ -23,4 +23,7 @@ public static class TicketErrors
     
     public static readonly Error CannotReopen =
         new("Tickets.CannotReopen", "Only closed tickets can be reopened.", StatusCodes.Status409Conflict);
+    
+    public static readonly Error UserIsNotAnAgent =
+        new("Tickets.UserIsNotAnAgent", "The selected user is not an agent.", StatusCodes.Status409Conflict);
 }

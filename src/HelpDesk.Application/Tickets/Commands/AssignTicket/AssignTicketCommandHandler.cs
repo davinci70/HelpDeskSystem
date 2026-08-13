@@ -1,8 +1,9 @@
 ﻿namespace HelpDesk.Application.Tickets.Commands.AssignTicket;
 
-public class AssignTicketCommandHandler(IApplicationDbContext context) : IRequestHandler<AssignTicketCommand, Result>
+public class AssignTicketCommandHandler(IApplicationDbContext context, ICurrentUserService currentUser) : IRequestHandler<AssignTicketCommand, Result>
 {
     private readonly IApplicationDbContext _context = context;
+    private readonly ICurrentUserService _currentUser = currentUser;
 
     public async Task<Result> Handle(AssignTicketCommand request, CancellationToken cancellationToken)
     {
@@ -11,17 +12,18 @@ public class AssignTicketCommandHandler(IApplicationDbContext context) : IReques
         if (ticket is null)
             return Result.Failure(TicketErrors.TicketNotFound);
 
-        var agent = await _context.Agents.FirstOrDefaultAsync(a => a.Id == request.AgentId, cancellationToken);
+        var user = await _context.Users.FirstOrDefaultAsync(a => a.Id == request.UserId, cancellationToken);
 
-        if (agent is null)
+        if (user is null)
             return Result.Failure(AgentErrors.AgentNotFound);
 
-        if (!agent.IsActive)
-            return Result.Failure(AgentErrors.AgentNotActive);
+        if (user.Role != UserRole.Agent)
+        {
+            return Result.Failure(
+                TicketErrors.UserIsNotAnAgent);
+        }
 
-        ticket.Assign(request.AgentId);
-
-        await _context.TicketHistories.AddAsync(TicketHistory.Assigned(ticket.Id, agent.Name), cancellationToken);
+        ticket.Assign(request.UserId, _currentUser.UserId!.Value);
 
         await _context.SaveChangesAsync(cancellationToken);
 

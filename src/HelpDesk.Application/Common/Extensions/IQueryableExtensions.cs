@@ -1,4 +1,5 @@
 ﻿using HelpDesk.Application.Common.Models;
+using HelpDesk.Domain.Entities.Tickets;
 
 namespace HelpDesk.Application.Common.Extensions;
 

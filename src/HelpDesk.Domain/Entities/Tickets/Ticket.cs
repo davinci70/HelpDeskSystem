@@ -1,6 +1,6 @@
-﻿namespace HelpDesk.Domain.Entities;
+﻿namespace HelpDesk.Domain.Entities.Tickets;
 
-public sealed class Ticket : Entity
+public sealed class Ticket : AggregateRoot
 {
     private readonly List<TicketComment> _comments = [];
 
@@ -10,16 +10,37 @@ public sealed class Ticket : Entity
     public TicketPriority Priority { get; private set; }
     public int CategoryId { get; private set; }
     public int? AssigneeId { get; private set; }
+    public int CreatedByUserId { get; set; }
     public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
 
-    public Category Category { get; private set; } = null!;
-    public Agent? Assignee { get; private set; } = null!;
-    public ICollection<TicketHistory> History { get; private set; } = [];
-    public IReadOnlyCollection<TicketComment> Comments => _comments.AsReadOnly();    
+    public int? AssignedByUserId { get; private set; }
+    public int? ResolvedByUserId { get; private set; }
+    public int? ClosedByUserId { get; private set; }
+    public int? ReopenedByUserId { get; private set; }
 
-    public void Assign(int agentId)
+    public User? AssignedByUser { get; private set; }
+    public User? ResolvedByUser { get; private set; }
+    public User? ClosedByUser { get; private set; }
+
+    public Category Category { get; private set; } = null!;
+    public User? Assignee { get; private set; } = null!;
+    public User CreatedByUser { get; private set; } = null!;
+    public ICollection<TicketHistory> History { get; private set; } = [];
+    public IReadOnlyCollection<TicketComment> Comments => _comments.AsReadOnly();
+
+    public void Assign(int userId, int? assignedByUserId)
     {
-        AssigneeId = agentId;
+        AssigneeId = userId;
+        AssignedByUserId = assignedByUserId;
+
+        RaiseDomainEvent(
+        new TicketAssignedDomainEvent(Id, userId));
+    }
+    
+    public void Create()
+    {
+        RaiseDomainEvent(
+       new TicketCreatedDomainEvent(this));
     }
 
     private bool _IsStatus(TicketStatus status) => Status == status;
@@ -29,37 +50,52 @@ public sealed class Ticket : Entity
         if (_IsStatus(TicketStatus.Open) && AssigneeId.HasValue)
         {
             Status = TicketStatus.InProgress;
+
+            RaiseDomainEvent(new TicketStartedDomainEvent(Id));
+
             return true;
         }
         
         return false;
     }
 
-    public bool Resolve()
+    public bool Resolve(int? resolvedByUserId)
     {
         if (_IsStatus(TicketStatus.InProgress))
         {
             Status = TicketStatus.Resolved;
+            ResolvedByUserId = resolvedByUserId;
+
+            RaiseDomainEvent(new TicketResolvedDomainEvent(Id));
+
             return true;
         }
         return false;
     }
 
-    public bool Close()
+    public bool Close(int? closedByUserId)
     {
         if (_IsStatus(TicketStatus.Resolved))
         {
             Status = TicketStatus.Closed;
+            ClosedByUserId = closedByUserId;
+
+            RaiseDomainEvent(new TicketClosedDomainEvent(Id));
+
             return true;
         }
         return false;
     }
 
-    public bool Reopen()
+    public bool Reopen(int? reopenedByUserId)
     {
         if (_IsStatus(TicketStatus.Closed))
         {
             Status = TicketStatus.Open;
+            ReopenedByUserId = reopenedByUserId;
+
+            RaiseDomainEvent(new TicketReopenedDomainEvent(Id));
+
             return true;
         }
         return false;
@@ -106,11 +142,12 @@ public sealed class Ticket : Entity
     //{
     //}
 
-    //public Ticket(string title, string description, TicketPriority priority, int categoryId)
+    //public Ticket(string title, string description, TicketPriority priority, int categoryId, int createdByUserId)
     //{
     //    SetTitle(title);
     //    SetDescription(description);
     //    SetPriority(priority);
+    //    CreatedByUserId = createdByUserId;
 
     //    if (categoryId <= 0)
     //    {

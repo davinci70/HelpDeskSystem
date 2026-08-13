@@ -1,8 +1,9 @@
 ﻿namespace HelpDesk.Application.Tickets.Commands.ResolveTicket;
 
-public class ResolveTicketCommandHandler(IApplicationDbContext context) : IRequestHandler<ResolveTicketCommand, Result>
+public class ResolveTicketCommandHandler(IApplicationDbContext context, ICurrentUserService currentUser) : IRequestHandler<ResolveTicketCommand, Result>
 {
     private readonly IApplicationDbContext _context = context;
+    private readonly ICurrentUserService _currentUser = currentUser;
 
     public async Task<Result> Handle(ResolveTicketCommand request, CancellationToken cancellationToken)
     {
@@ -11,11 +12,11 @@ public class ResolveTicketCommandHandler(IApplicationDbContext context) : IReque
         if (ticket is null)
             return Result.Failure(TicketErrors.TicketNotFound);
 
-        if (!ticket.Resolve())
+        if (!ticket.Resolve(_currentUser.UserId!.Value))
             return Result.Failure(TicketErrors.CannotResolve);
 
         await _context.SaveChangesAsync(cancellationToken);
-
-        return Result.Success(ticket);
+         
+        return Result.Success();
     }
 }

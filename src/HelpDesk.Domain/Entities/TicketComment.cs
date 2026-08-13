@@ -1,4 +1,7 @@
-﻿namespace HelpDesk.Domain.Entities;
+﻿using HelpDesk.Domain.Common.Primitives;
+using HelpDesk.Domain.Entities.Tickets;
+
+namespace HelpDesk.Domain.Entities;
 
 public sealed class TicketComment : Entity
 {

@@ -22,32 +22,6 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("HelpDesk.Domain.Entities.Agent", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Agents");
-                });
-
             modelBuilder.Entity("HelpDesk.Domain.Entities.Category", b =>
                 {
                     b.Property<int>("Id")
@@ -64,48 +38,6 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Categories");
-                });
-
-            modelBuilder.Entity("HelpDesk.Domain.Entities.Ticket", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("AssigneeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasMaxLength(2000)
-                        .HasColumnType("nvarchar(2000)");
-
-                    b.Property<int>("Priority")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AssigneeId");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("Tickets");
                 });
 
             modelBuilder.Entity("HelpDesk.Domain.Entities.TicketComment", b =>
@@ -163,26 +95,108 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
                     b.ToTable("TicketHistories");
                 });
 
-            modelBuilder.Entity("HelpDesk.Domain.Entities.Ticket", b =>
+            modelBuilder.Entity("HelpDesk.Domain.Entities.Tickets.Ticket", b =>
                 {
-                    b.HasOne("HelpDesk.Domain.Entities.Agent", "Assignee")
-                        .WithMany("Tickets")
-                        .HasForeignKey("AssigneeId");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
 
-                    b.HasOne("HelpDesk.Domain.Entities.Category", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Navigation("Assignee");
+                    b.Property<int?>("AssignedByUserId")
+                        .HasColumnType("int");
 
-                    b.Navigation("Category");
+                    b.Property<int?>("AssigneeId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ClosedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReopenedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ResolvedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AssignedByUserId");
+
+                    b.HasIndex("AssigneeId");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ClosedByUserId");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("ResolvedByUserId");
+
+                    b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("HelpDesk.Domain.Entities.Users.User", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("HelpDesk.Domain.Entities.TicketComment", b =>
                 {
-                    b.HasOne("HelpDesk.Domain.Entities.Ticket", "Ticket")
+                    b.HasOne("HelpDesk.Domain.Entities.Tickets.Ticket", "Ticket")
                         .WithMany("Comments")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -193,7 +207,7 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("HelpDesk.Domain.Entities.TicketHistory", b =>
                 {
-                    b.HasOne("HelpDesk.Domain.Entities.Ticket", "Ticket")
+                    b.HasOne("HelpDesk.Domain.Entities.Tickets.Ticket", "Ticket")
                         .WithMany("History")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -202,16 +216,63 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
                     b.Navigation("Ticket");
                 });
 
-            modelBuilder.Entity("HelpDesk.Domain.Entities.Agent", b =>
+            modelBuilder.Entity("HelpDesk.Domain.Entities.Tickets.Ticket", b =>
                 {
-                    b.Navigation("Tickets");
+                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "AssignedByUser")
+                        .WithMany()
+                        .HasForeignKey("AssignedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "Assignee")
+                        .WithMany()
+                        .HasForeignKey("AssigneeId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("HelpDesk.Domain.Entities.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "ClosedByUser")
+                        .WithMany()
+                        .HasForeignKey("ClosedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "CreatedByUser")
+                        .WithMany("Tickets")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "ResolvedByUser")
+                        .WithMany()
+                        .HasForeignKey("ResolvedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("AssignedByUser");
+
+                    b.Navigation("Assignee");
+
+                    b.Navigation("Category");
+
+                    b.Navigation("ClosedByUser");
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("ResolvedByUser");
                 });
 
-            modelBuilder.Entity("HelpDesk.Domain.Entities.Ticket", b =>
+            modelBuilder.Entity("HelpDesk.Domain.Entities.Tickets.Ticket", b =>
                 {
                     b.Navigation("Comments");
 
                     b.Navigation("History");
+                });
+
+            modelBuilder.Entity("HelpDesk.Domain.Entities.Users.User", b =>
+                {
+                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }

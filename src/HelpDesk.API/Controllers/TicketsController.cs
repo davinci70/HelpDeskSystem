@@ -1,18 +1,11 @@
-﻿
-
-namespace HelpDesk.API.Controllers;
+﻿namespace HelpDesk.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
+[Authorize]
 public class TicketsController(ISender sender) : ControllerBase
 {
     private readonly ISender _sender = sender;
-
-    [HttpGet]
-    public async Task<IActionResult> test()
-    {
-        return Ok();
-    }
 
     [HttpGet("{Id}")]
     public async Task<IActionResult> Get([FromRoute] int Id, CancellationToken cancellationToken)

@@ -1,4 +1,6 @@
-﻿namespace HelpDesk.Infrastructure.Persistence.Configurations;
+﻿using HelpDesk.Domain.Entities.Tickets;
+
+namespace HelpDesk.Infrastructure.Persistence.Configurations;
 
 public sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
 {
@@ -26,8 +28,28 @@ public sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
             .HasForeignKey(x => x.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasOne(x => x.Assignee)
+            .WithMany()
+            .HasForeignKey(x => x.AssigneeId)
+            .OnDelete(DeleteBehavior.SetNull);
+
         builder.Metadata
             .FindNavigation(nameof(Ticket.Comments))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
+
+        builder.HasOne(t => t.AssignedByUser)
+            .WithMany()
+            .HasForeignKey(t => t.AssignedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(t => t.ResolvedByUser)
+            .WithMany()
+            .HasForeignKey(t => t.ResolvedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(t => t.ClosedByUser)
+            .WithMany()
+            .HasForeignKey(t => t.ClosedByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

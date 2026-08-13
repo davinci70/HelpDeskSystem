@@ -1,4 +1,6 @@
-﻿namespace HelpDesk.Application.Mapping;
+﻿using HelpDesk.Domain.Entities.Tickets;
+
+namespace HelpDesk.Application.Mapping;
 
 public class MappingConfiguration : IRegister
 {
