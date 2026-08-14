@@ -3,7 +3,7 @@ using HelpDesk.Domain.Entities.Tickets;
 using HelpDesk.Domain.Entities.Tickets.Events;
 using HelpDesk.Domain.Enums;
 
-namespace HelpDesk.Domain.Tests.Tickets;
+namespace HelpDesk.Domain.Tests.Entities;
 
 public class TicketTests
 {

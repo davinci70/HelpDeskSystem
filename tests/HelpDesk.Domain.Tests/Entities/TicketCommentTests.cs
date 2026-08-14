@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using HelpDesk.Domain.Entities;
 
-namespace HelpDesk.Domain.UnitTests.Entities.Tickets;
+namespace HelpDesk.Domain.Tests.Entities;
 
 public sealed class TicketCommentTests
 {

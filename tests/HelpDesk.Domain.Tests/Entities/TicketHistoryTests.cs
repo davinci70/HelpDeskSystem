@@ -2,7 +2,7 @@
 using HelpDesk.Domain.Entities;
 using HelpDesk.Domain.Enums;
 
-namespace HelpDesk.Domain.UnitTests.Entities.Tickets;
+namespace HelpDesk.Domain.Tests.Entities;
 
 public sealed class TicketHistoryTests
 {
