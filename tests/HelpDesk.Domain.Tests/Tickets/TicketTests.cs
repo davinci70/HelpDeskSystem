@@ -455,4 +455,53 @@ public class TicketTests
         // Assert
         ticket.DomainEvents.Should().BeEmpty();
     }
+
+    [Fact]
+    public void AddComment_ShouldTrimContent()
+    {
+        // Arrange
+        var ticket = CreateTicket();
+
+        // Act
+        var comment = ticket.AddComment("  Test comment  ");
+
+        // Assert
+        comment.Content.Should().Be("Test comment");
+    }
+
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    [InlineData("   ")]
+    public void AddComment_ShouldThrow_WhenContentIsEmpty(string content)
+    {
+        // Arrange
+        var ticket = CreateTicket();
+
+        // Act
+        var act = () => ticket.AddComment(content);
+
+        // Assert
+        act.Should()
+            .Throw<ArgumentException>()
+            .WithParameterName(nameof(content));
+
+        ticket.Comments.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void Comments_ShouldExposeReadOnlyCollection()
+    {
+        // Arrange
+        var ticket = CreateTicket();
+
+        ticket.AddComment("First comment");
+        ticket.AddComment("Second comment");
+
+        // Act
+        var comments = ticket.Comments;
+
+        // Assert
+        comments.Should().HaveCount(2);
+    }
 }
