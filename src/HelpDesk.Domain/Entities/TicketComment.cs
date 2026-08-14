@@ -20,7 +20,7 @@ public sealed class TicketComment : Entity
 
     public Ticket Ticket { get; private set; } = null!;
 
-    internal static TicketComment Create(string content)
+    public static TicketComment Create(string content)
     {
         return new TicketComment(content);
     }
