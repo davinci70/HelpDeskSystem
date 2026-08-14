@@ -23,6 +23,9 @@ public sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
         builder.Property(ticket => ticket.CreatedAtUtc)
             .IsRequired();
 
+        builder.Property(ticket => ticket.CreatedByUserId)
+            .IsRequired();
+
         builder.HasOne(x => x.Category)
             .WithMany()
             .HasForeignKey(x => x.CategoryId)
@@ -33,23 +36,13 @@ public sealed class TicketConfiguration : IEntityTypeConfiguration<Ticket>
             .HasForeignKey(x => x.AssigneeId)
             .OnDelete(DeleteBehavior.SetNull);
 
+        builder.HasMany(ticket => ticket.Comments)
+            .WithOne(comment => comment.Ticket)
+            .HasForeignKey(comment => comment.TicketId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         builder.Metadata
             .FindNavigation(nameof(Ticket.Comments))!
             .SetPropertyAccessMode(PropertyAccessMode.Field);
-
-        builder.HasOne(t => t.AssignedByUser)
-            .WithMany()
-            .HasForeignKey(t => t.AssignedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(t => t.ResolvedByUser)
-            .WithMany()
-            .HasForeignKey(t => t.ResolvedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(t => t.ClosedByUser)
-            .WithMany()
-            .HasForeignKey(t => t.ClosedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
     }
 }

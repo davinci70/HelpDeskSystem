@@ -1,8 +1,10 @@
 ﻿namespace HelpDesk.Application.Tickets.Commands.StartTicketProcess;
 
-public class StartTicketProcessHandler(IApplicationDbContext context) : IRequestHandler<StartTicketProcessCommand, Result>
+public sealed class StartTicketProcessHandler(IApplicationDbContext context, ICurrentUserService _currentUser)
+    : IRequestHandler<StartTicketProcessCommand, Result>
 {
     private readonly IApplicationDbContext _context = context;
+    private readonly ICurrentUserService _currentUser = _currentUser;
 
     public async Task<Result> Handle(StartTicketProcessCommand request, CancellationToken cancellationToken)
     {
@@ -11,11 +13,11 @@ public class StartTicketProcessHandler(IApplicationDbContext context) : IRequest
         if (ticket is null)
             return Result.Failure(TicketErrors.TicketNotFound);
 
-        if (ticket.AssigneeId is null)
-            return Result.Failure(TicketErrors.NotAssigned);
-
-        if (!ticket.StartProgress())
+        if (ticket.StartProgress(_currentUser.UserId!.Value) == TicketTransitionResult.InvalidStatus)
             return Result.Failure(TicketErrors.CannotStart);
+
+        if (ticket.StartProgress(_currentUser.UserId!.Value) == TicketTransitionResult.NotAssigned)
+            return Result.Failure(TicketErrors.NotAssigned);
 
         await _context.SaveChangesAsync(cancellationToken);
 

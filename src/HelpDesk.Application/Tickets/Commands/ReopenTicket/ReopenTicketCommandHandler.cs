@@ -12,7 +12,7 @@ public class ReopenTicketCommandHandler(IApplicationDbContext context, ICurrentU
         if (ticket is null)
             return Result.Failure(TicketErrors.TicketNotFound);
 
-        if (!ticket.Reopen(_currentUser.UserId!.Value))
+        if (ticket.Reopen(_currentUser.UserId!.Value) == TicketTransitionResult.InvalidStatus)
             return Result.Failure(TicketErrors.CannotReopen);
 
         await _context.SaveChangesAsync(cancellationToken);

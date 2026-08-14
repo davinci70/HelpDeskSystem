@@ -15,7 +15,7 @@ public sealed class TicketCreatedDomainEventHandler
         CancellationToken cancellationToken)
     {
         _context.TicketHistories.Add(
-            TicketHistory.Created(notification.DomainEvent.Ticket.Id));
+            TicketHistory.Created(notification.DomainEvent.Ticket.Id, notification.DomainEvent.Ticket.CreatedByUserId));
 
         return Task.CompletedTask;
     }

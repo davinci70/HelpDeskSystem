@@ -5,9 +5,21 @@ internal class TicketHistoryConfiguration : IEntityTypeConfiguration<TicketHisto
     public void Configure(EntityTypeBuilder<TicketHistory> builder)
     {
         builder.Property(x => x.Type).IsRequired();
+       
+        builder.Property(x => x.CreatedAt).IsRequired();
 
         builder.Property(x => x.Description)
             .HasMaxLength(500)
             .IsRequired();
+
+        builder.HasOne(x => x.Ticket)
+            .WithMany()
+            .HasForeignKey(x => x.TicketId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasOne<User>()
+            .WithMany()
+            .HasForeignKey(x => x.ActionByUserId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

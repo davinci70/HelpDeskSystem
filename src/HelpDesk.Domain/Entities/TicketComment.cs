@@ -1,46 +1,44 @@
-﻿using HelpDesk.Domain.Common.Primitives;
-using HelpDesk.Domain.Entities.Tickets;
-
-namespace HelpDesk.Domain.Entities;
+﻿namespace HelpDesk.Domain.Entities;
 
 public sealed class TicketComment : Entity
 {
+    private TicketComment()
+    {
+    }
+
+    private TicketComment(string content)
+    {
+        Content = NormalizeContent(content);
+        CreatedAtUtc = DateTime.UtcNow;
+    }
+
     public int TicketId { get; private set; }
-    public string Content { get; private set; } = null!;
+
+    public string Content { get; private set; } = string.Empty;
+
     public DateTime CreatedAtUtc { get; private set; }
 
     public Ticket Ticket { get; private set; } = null!;
 
-    public TicketComment()
+    internal static TicketComment Create(string content)
     {
-        
-    }
-
-    public TicketComment(int ticketId, string content)
-    {
-        if (ticketId <= 0)
-        {
-            throw new ArgumentException("Ticket ID must be greater than 0.", nameof(ticketId));
-        }
-
-        SetContent(content);
-
-        Content = content;
-        CreatedAtUtc = DateTime.UtcNow;
+        return new TicketComment(content);
     }
 
     public void UpdateContent(string content)
     {
-        SetContent(content);
+        Content = NormalizeContent(content);
     }
 
-    private void SetContent(string content)
+    private static string NormalizeContent(string content)
     {
         if (string.IsNullOrWhiteSpace(content))
         {
-            throw new ArgumentException("Content cannot be empty.", nameof(content));
+            throw new ArgumentException(
+                "Content cannot be empty.",
+                nameof(content));
         }
-        
-        Content = content.Trim();
+
+        return content.Trim();
     }
 }

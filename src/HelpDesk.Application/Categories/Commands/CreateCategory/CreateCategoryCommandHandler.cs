@@ -1,8 +1,4 @@
-﻿using HelpDesk.Application.Abstractions.Persistence;
-using HelpDesk.Application.Common.Results;
-using HelpDesk.Application.Errors;
-
-namespace HelpDesk.Application.Categories.Commands.CreateCategory;
+﻿namespace HelpDesk.Application.Categories.Commands.CreateCategory;
 
 public sealed class CreateCategoryCommandHandler(IApplicationDbContext context)
         : IRequestHandler<CreateCategoryCommand, Result<CreateCategoryResponse>>
@@ -16,7 +12,7 @@ public sealed class CreateCategoryCommandHandler(IApplicationDbContext context)
         if (categoryAlreadyExists)
             return Result.Failure<CreateCategoryResponse>(CategoryErrors.AlreadyExists);
 
-        var category = new Category(request.Name.Trim());
+        var category = Category.Create(request.Name);
 
         _context.Categories.Add(category);
 

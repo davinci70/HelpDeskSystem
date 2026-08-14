@@ -10,7 +10,7 @@ public class CreateTicketCommandValidator : AbstractValidator<CreateTicketComman
 
         RuleFor(x => x.Description)
             .NotEmpty()
-            .MaximumLength(4000);
+            .MaximumLength(2000);
 
         RuleFor(x => x.CategoryId)
             .GreaterThan(0);

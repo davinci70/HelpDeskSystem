@@ -2,32 +2,38 @@
 
 namespace HelpDesk.Domain.Entities;
 
-public sealed class Category : Entity
+public sealed class Category : AggregateRoot
 {
-    public string Name { get; private set; } = null!;
-
-    public Category()
+    private Category()
     {
-        
     }
 
-    public Category(string name)
+    private Category(string name)
     {
-        SetName(name);
+        Name = NormalizeName(name);
     }
 
-    public void UpdateName(string name)
+    public string Name { get; private set; } = string.Empty;
+
+    public static Category Create(string name)
     {
-        SetName(name);
+        return new Category(name);
     }
 
-    private void SetName(string name)
+    public void Rename(string name)
+    {
+        Name = NormalizeName(name);
+    }
+
+    private static string NormalizeName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
-            throw new ArgumentException("Category name cannot be null or empty.", nameof(name));
+            throw new ArgumentException(
+                "Category name cannot be empty.",
+                nameof(name));
         }
 
-        Name = name.Trim();
+        return name.Trim();
     }
 }

@@ -25,38 +25,51 @@ public sealed class ApplicationDbContext : Microsoft.EntityFrameworkCore.DbConte
     public override async Task<int> SaveChangesAsync(
     CancellationToken cancellationToken = default)
     {
-        // First save
-        var result = await base.SaveChangesAsync(cancellationToken);
+        await using var transaction =
+            await Database.BeginTransactionAsync(cancellationToken);
 
-        // Collect aggregates that raised events
-        var aggregates = ChangeTracker
-            .Entries<AggregateRoot>()
-            .Select(e => e.Entity)
-            .Where(e => e.DomainEvents.Count != 0)
-            .ToList();
-
-        if (!aggregates.Any())
+        try
         {
+            var result =
+                await base.SaveChangesAsync(cancellationToken);
+
+            var aggregates = ChangeTracker
+                .Entries<AggregateRoot>()
+                .Select(entry => entry.Entity)
+                .Where(aggregate => aggregate.DomainEvents.Count > 0)
+                .ToList();
+
+            if (aggregates.Count == 0)
+            {
+                await transaction.CommitAsync(cancellationToken);
+
+                return result;
+            }
+
+            var domainEvents = aggregates
+                .SelectMany(aggregate => aggregate.DomainEvents)
+                .ToList();
+
+            foreach (var aggregate in aggregates)
+            {
+                aggregate.ClearDomainEvents();
+            }
+
+            await _dispatcher.DispatchAsync(
+                domainEvents,
+                cancellationToken);
+
+            await base.SaveChangesAsync(cancellationToken);
+
+            await transaction.CommitAsync(cancellationToken);
+
             return result;
         }
-
-        // Copy events
-        var domainEvents = aggregates
-            .SelectMany(a => a.DomainEvents)
-            .ToList();
-
-        // Clear BEFORE dispatch to avoid recursion
-        foreach (var aggregate in aggregates)
+        catch
         {
-            aggregate.ClearDomainEvents();
+            await transaction.RollbackAsync(cancellationToken);
+
+            throw;
         }
-
-        // Publish
-        await _dispatcher.DispatchAsync(domainEvents, cancellationToken);
-
-        // Persist anything handlers added
-        await base.SaveChangesAsync(cancellationToken);
-
-        return result;
     }
 }

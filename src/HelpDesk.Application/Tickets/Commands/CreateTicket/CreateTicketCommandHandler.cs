@@ -6,28 +6,44 @@ public sealed class CreateTicketCommandHandler(
     IApplicationDbContext context,
     ICurrentUserService currentUserService,
     ILogger<CreateTicketCommandHandler> logger)
-        : IRequestHandler<CreateTicketCommand, Result<CreateTicketResponse>>
+    : IRequestHandler<CreateTicketCommand, Result<CreateTicketResponse>>
 {
     private readonly IApplicationDbContext _context = context;
     private readonly ICurrentUserService _currentUserService = currentUserService;
     private readonly ILogger<CreateTicketCommandHandler> _logger = logger;
 
-    public async Task<Result<CreateTicketResponse>> Handle(CreateTicketCommand request, CancellationToken cancellationToken)
+    public async Task<Result<CreateTicketResponse>> Handle(
+        CreateTicketCommand request,
+        CancellationToken cancellationToken)
     {
-        var categoryExists = await _context.Categories.AnyAsync(x => x.Id == request.CategoryId, cancellationToken);
+        var categoryExists = await _context.Categories
+            .AnyAsync(
+                x => x.Id == request.CategoryId,
+                cancellationToken);
 
         if (!categoryExists)
-            return Result.Failure<CreateTicketResponse>(TicketErrors.CategoryNotFound);
+        {
+            return Result.Failure<CreateTicketResponse>(
+                TicketErrors.CategoryNotFound);
+        }
 
-        var ticket = request.Adapt<Ticket>();
-        ticket.CreatedByUserId = _currentUserService.UserId!.Value;
+        var ticket = Ticket.Create(
+            request.Title,
+            request.Description,
+            request.CategoryId,
+            request.Priority,
+            _currentUserService.UserId!.Value);
 
         _context.Tickets.Add(ticket);
 
-        ticket.Create();
-
         await _context.SaveChangesAsync(cancellationToken);
 
-        return Result.Success(ticket.Adapt<CreateTicketResponse>());
+        _logger.LogInformation(
+            "Ticket {TicketId} created by user {UserId}.",
+            ticket.Id,
+            ticket.CreatedByUserId);
+
+        return Result.Success(
+            ticket.Adapt<CreateTicketResponse>());
     }
 }

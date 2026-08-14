@@ -18,7 +18,8 @@ public sealed class TicketAssignedDomainEventHandler
         _context.TicketHistories.Add(
             TicketHistory.Assigned(
                 notification.DomainEvent.TicketId,
-                notification.DomainEvent.UserId));
+                notification.DomainEvent.UserId,
+                notification.DomainEvent.ActionByUserId));
 
         return Task.CompletedTask;
     }

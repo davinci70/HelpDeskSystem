@@ -1,7 +1,7 @@
 ﻿namespace HelpDesk.Application.Tickets.EventHandlers;
 
 public sealed class TicketStartedDomainEventHandler
-    : INotificationHandler<DomainEventNotification<TicketStartedDomainEvent>>
+        : INotificationHandler<DomainEventNotification<TicketStartedDomainEvent>>
 {
     private readonly IApplicationDbContext _context;
 
@@ -15,7 +15,7 @@ public sealed class TicketStartedDomainEventHandler
         CancellationToken cancellationToken)
     {
         _context.TicketHistories.Add(
-            TicketHistory.Started(notification.DomainEvent.TicketId));
+            TicketHistory.Started(notification.DomainEvent.TicketId, notification.DomainEvent.ActionByUserId));
 
         return Task.CompletedTask;
     }

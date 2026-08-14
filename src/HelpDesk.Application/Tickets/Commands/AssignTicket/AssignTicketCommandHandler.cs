@@ -17,7 +17,7 @@ public class AssignTicketCommandHandler(IApplicationDbContext context, ICurrentU
         if (user is null)
             return Result.Failure(AgentErrors.AgentNotFound);
 
-        if (user.Role != UserRole.Agent)
+        if (!user.IsAgent())
         {
             return Result.Failure(
                 TicketErrors.UserIsNotAnAgent);

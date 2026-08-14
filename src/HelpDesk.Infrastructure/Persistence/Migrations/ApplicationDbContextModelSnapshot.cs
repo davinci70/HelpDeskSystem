@@ -74,6 +74,9 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ActionByUserId")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -90,6 +93,8 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ActionByUserId");
+
                     b.HasIndex("TicketId");
 
                     b.ToTable("TicketHistories");
@@ -103,16 +108,10 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("AssignedByUserId")
-                        .HasColumnType("int");
-
                     b.Property<int?>("AssigneeId")
                         .HasColumnType("int");
 
                     b.Property<int>("CategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ClosedByUserId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("CreatedAtUtc")
@@ -129,12 +128,6 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
                     b.Property<int>("Priority")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReopenedByUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("ResolvedByUserId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
@@ -145,17 +138,11 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AssignedByUserId");
-
                     b.HasIndex("AssigneeId");
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("ClosedByUserId");
-
                     b.HasIndex("CreatedByUserId");
-
-                    b.HasIndex("ResolvedByUserId");
 
                     b.ToTable("Tickets");
                 });
@@ -207,8 +194,13 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("HelpDesk.Domain.Entities.TicketHistory", b =>
                 {
+                    b.HasOne("HelpDesk.Domain.Entities.Users.User", null)
+                        .WithMany()
+                        .HasForeignKey("ActionByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("HelpDesk.Domain.Entities.Tickets.Ticket", "Ticket")
-                        .WithMany("History")
+                        .WithMany()
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -218,11 +210,6 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("HelpDesk.Domain.Entities.Tickets.Ticket", b =>
                 {
-                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "AssignedByUser")
-                        .WithMany()
-                        .HasForeignKey("AssignedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("HelpDesk.Domain.Entities.Users.User", "Assignee")
                         .WithMany()
                         .HasForeignKey("AssigneeId")
@@ -234,45 +221,22 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "ClosedByUser")
-                        .WithMany()
-                        .HasForeignKey("ClosedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("HelpDesk.Domain.Entities.Users.User", "CreatedByUser")
-                        .WithMany("Tickets")
+                        .WithMany()
                         .HasForeignKey("CreatedByUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "ResolvedByUser")
-                        .WithMany()
-                        .HasForeignKey("ResolvedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("AssignedByUser");
 
                     b.Navigation("Assignee");
 
                     b.Navigation("Category");
 
-                    b.Navigation("ClosedByUser");
-
                     b.Navigation("CreatedByUser");
-
-                    b.Navigation("ResolvedByUser");
                 });
 
             modelBuilder.Entity("HelpDesk.Domain.Entities.Tickets.Ticket", b =>
                 {
                     b.Navigation("Comments");
-
-                    b.Navigation("History");
-                });
-
-            modelBuilder.Entity("HelpDesk.Domain.Entities.Users.User", b =>
-                {
-                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }

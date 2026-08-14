@@ -12,7 +12,7 @@ public class CloseTicketCommandHandler(IApplicationDbContext context, ICurrentUs
         if (ticket is null)
             return Result.Failure(TicketErrors.TicketNotFound);
 
-        if (!ticket.Close(_currentUser.UserId!.Value))
+        if (ticket.Close(_currentUser.UserId!.Value) == TicketTransitionResult.InvalidStatus)
             return Result.Failure(TicketErrors.CannotClose);
 
         await _context.SaveChangesAsync(cancellationToken);

@@ -4,217 +4,199 @@ public sealed class Ticket : AggregateRoot
 {
     private readonly List<TicketComment> _comments = [];
 
+    private Ticket()
+    {
+    }
+
+    private Ticket(
+        string title,
+        string description,
+        int categoryId,
+        TicketPriority priority,
+        int createdByUserId)
+    {
+        SetTitle(title);
+        SetDescription(description);
+
+        if (categoryId <= 0)
+            throw new ArgumentException(
+                "Category ID must be greater than zero.",
+                nameof(categoryId));
+
+        if (createdByUserId <= 0)
+            throw new ArgumentException(
+                "Created by user ID must be greater than zero.",
+                nameof(createdByUserId));
+
+        CategoryId = categoryId;
+        Priority = priority;
+        CreatedByUserId = createdByUserId;
+        Status = TicketStatus.Open;
+        CreatedAtUtc = DateTime.UtcNow;
+    }
+
     public string Title { get; private set; } = string.Empty;
-    public string Description { get; private set; } = string.Empty; 
+
+    public string Description { get; private set; } = string.Empty;
+
     public TicketStatus Status { get; private set; }
+
     public TicketPriority Priority { get; private set; }
+
     public int CategoryId { get; private set; }
+
     public int? AssigneeId { get; private set; }
-    public int CreatedByUserId { get; set; }
-    public DateTime CreatedAtUtc { get; private set; } = DateTime.UtcNow;
 
-    public int? AssignedByUserId { get; private set; }
-    public int? ResolvedByUserId { get; private set; }
-    public int? ClosedByUserId { get; private set; }
-    public int? ReopenedByUserId { get; private set; }
+    public int CreatedByUserId { get; private set; }
 
-    public User? AssignedByUser { get; private set; }
-    public User? ResolvedByUser { get; private set; }
-    public User? ClosedByUser { get; private set; }
+    public DateTime CreatedAtUtc { get; private set; }
 
     public Category Category { get; private set; } = null!;
-    public User? Assignee { get; private set; } = null!;
+
+    public User? Assignee { get; private set; }
+
     public User CreatedByUser { get; private set; } = null!;
-    public ICollection<TicketHistory> History { get; private set; } = [];
-    public IReadOnlyCollection<TicketComment> Comments => _comments.AsReadOnly();
 
-    public void Assign(int userId, int? assignedByUserId)
+    public IReadOnlyCollection<TicketComment> Comments =>
+        _comments.AsReadOnly();
+
+    public TicketComment AddComment(string content)
     {
+        var comment = TicketComment.Create(content);
+
+        _comments.Add(comment);
+
+        return comment;
+    }
+
+    public static Ticket Create(
+        string title,
+        string description,
+        int categoryId,
+        TicketPriority priority,
+        int createdByUserId)
+    {
+        var ticket = new Ticket(
+            title,
+            description,
+            categoryId,
+            priority,
+            createdByUserId);
+
+        ticket.RaiseDomainEvent(
+            new TicketCreatedDomainEvent(ticket));
+
+        return ticket;
+    }
+
+    public void Assign(int userId, int? actionByUserId)
+    {
+        if (userId <= 0)
+        {
+            throw new ArgumentException(
+                "User ID must be greater than zero.",
+                nameof(userId));
+        }
+
+        ValidateOptionalUserId(actionByUserId, nameof(actionByUserId));
+
         AssigneeId = userId;
-        AssignedByUserId = assignedByUserId;
 
-        RaiseDomainEvent(
-        new TicketAssignedDomainEvent(Id, userId));
-    }
-    
-    public void Create()
-    {
-        RaiseDomainEvent(
-       new TicketCreatedDomainEvent(this));
+        RaiseDomainEvent(new TicketAssignedDomainEvent(Id, userId, actionByUserId));
     }
 
-    private bool _IsStatus(TicketStatus status) => Status == status;
-
-    public bool StartProgress()
+    public TicketTransitionResult StartProgress(int? actionByUserId)
     {
-        if (_IsStatus(TicketStatus.Open) && AssigneeId.HasValue)
+        if (Status != TicketStatus.Open)
+            return TicketTransitionResult.InvalidStatus;
+
+        if (!AssigneeId.HasValue)
+            return TicketTransitionResult.NotAssigned;
+
+        ValidateOptionalUserId(actionByUserId, nameof(actionByUserId));
+
+        Status = TicketStatus.InProgress;
+
+        RaiseDomainEvent(new TicketStartedDomainEvent(Id, actionByUserId));
+
+        return TicketTransitionResult.Success;
+    }
+
+    public TicketTransitionResult Resolve(int? actionByUserId)
+    {
+        if (Status != TicketStatus.InProgress)
+            return TicketTransitionResult.InvalidStatus;
+
+        ValidateOptionalUserId(actionByUserId, nameof(actionByUserId));
+
+        Status = TicketStatus.Resolved;
+
+        RaiseDomainEvent(new TicketResolvedDomainEvent(Id, actionByUserId));
+
+        return TicketTransitionResult.Success;
+    }
+
+    public TicketTransitionResult Close(int? actionByUserId)
+    {
+        if (Status != TicketStatus.Resolved)
+            return TicketTransitionResult.InvalidStatus;
+
+        ValidateOptionalUserId(actionByUserId, nameof(actionByUserId));
+
+        Status = TicketStatus.Closed;
+
+        RaiseDomainEvent(new TicketClosedDomainEvent(Id, actionByUserId));
+
+        return TicketTransitionResult.Success;
+    }
+
+    public TicketTransitionResult Reopen(int? actionByUserId)
+    {
+        if (Status != TicketStatus.Closed)
+            return TicketTransitionResult.InvalidStatus;
+
+        ValidateOptionalUserId(actionByUserId, nameof(actionByUserId));
+
+        Status = TicketStatus.Open;
+
+        RaiseDomainEvent(new TicketReopenedDomainEvent(Id, actionByUserId));
+
+        return TicketTransitionResult.Success;
+    }
+
+    private void SetTitle(string title)
+    {
+        if (string.IsNullOrWhiteSpace(title))
         {
-            Status = TicketStatus.InProgress;
-
-            RaiseDomainEvent(new TicketStartedDomainEvent(Id));
-
-            return true;
+            throw new ArgumentException(
+                "Title cannot be empty.",
+                nameof(title));
         }
-        
-        return false;
+
+        Title = title.Trim();
     }
 
-    public bool Resolve(int? resolvedByUserId)
+    private void SetDescription(string description)
     {
-        if (_IsStatus(TicketStatus.InProgress))
+        if (string.IsNullOrWhiteSpace(description))
         {
-            Status = TicketStatus.Resolved;
-            ResolvedByUserId = resolvedByUserId;
-
-            RaiseDomainEvent(new TicketResolvedDomainEvent(Id));
-
-            return true;
+            throw new ArgumentException(
+                "Description cannot be empty.",
+                nameof(description));
         }
-        return false;
+
+        Description = description.Trim();
     }
 
-    public bool Close(int? closedByUserId)
+    private static void ValidateOptionalUserId(
+        int? userId,
+        string parameterName)
     {
-        if (_IsStatus(TicketStatus.Resolved))
+        if (userId.HasValue && userId.Value <= 0)
         {
-            Status = TicketStatus.Closed;
-            ClosedByUserId = closedByUserId;
-
-            RaiseDomainEvent(new TicketClosedDomainEvent(Id));
-
-            return true;
+            throw new ArgumentException(
+                "User Id must be greater than zero.",
+                parameterName);
         }
-        return false;
     }
-
-    public bool Reopen(int? reopenedByUserId)
-    {
-        if (_IsStatus(TicketStatus.Closed))
-        {
-            Status = TicketStatus.Open;
-            ReopenedByUserId = reopenedByUserId;
-
-            RaiseDomainEvent(new TicketReopenedDomainEvent(Id));
-
-            return true;
-        }
-        return false;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //private Ticket()
-    //{
-    //}
-
-    //public Ticket(string title, string description, TicketPriority priority, int categoryId, int createdByUserId)
-    //{
-    //    SetTitle(title);
-    //    SetDescription(description);
-    //    SetPriority(priority);
-    //    CreatedByUserId = createdByUserId;
-
-    //    if (categoryId <= 0)
-    //    {
-    //        throw new ArgumentException("Category id must be greater than zero.", nameof(categoryId));
-    //    }
-
-    //    CategoryId = categoryId;
-    //    Status = TicketStatus.Open;
-    //    CreatedAtUtc = DateTime.UtcNow;
-    //}
-
-    //public void UpdateDetails(string title, string description, TicketPriority priority, int categoryId)
-    //{
-    //    SetTitle(title);
-    //    SetDescription(description);
-    //    SetPriority(priority);
-
-    //    if (categoryId <= 0)
-    //    {
-    //        throw new ArgumentException("Category id must be greater than zero.", nameof(categoryId));
-    //    }
-
-    //    CategoryId = categoryId;
-    //}
-
-    //public void ChangeStatus(TicketStatus status)
-    //{
-    //    Status = status;
-    //}
-
-    //public void AddComment(TicketComment comment)
-    //{
-    //    if (comment is null)
-    //    {
-    //        throw new ArgumentNullException(nameof(comment));
-    //    }
-
-    //    _comments.Add(comment);
-    //}
-
-    //private void SetTitle(string title)
-    //{
-    //    if (string.IsNullOrWhiteSpace(title))
-    //    {
-    //        throw new ArgumentException("Ticket title cannot be empty.", nameof(title));
-    //    }
-
-    //    Title = title.Trim();
-    //}
-
-    //private void SetDescription(string description)
-    //{
-    //    if (string.IsNullOrWhiteSpace(description))
-    //    {
-    //        throw new ArgumentException("Ticket description cannot be empty.", nameof(description));
-    //    }
-
-    //    Description = description.Trim();
-    //}
-
-    //private void SetPriority(TicketPriority priority)
-    //{
-    //    if (!Enum.IsDefined(priority))
-    //    {
-    //        throw new ArgumentException("Invalid ticket priority.", nameof(priority));
-    //    }
-
-    //    Priority = priority;
-    //}
 }

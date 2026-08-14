@@ -1,17 +1,7 @@
-﻿using HelpDesk.Domain.Entities.Tickets;
+﻿namespace HelpDesk.Domain.Entities;
 
-namespace HelpDesk.Domain.Entities;
-
-public class TicketHistory
+public sealed class TicketHistory : Entity
 {
-    public int Id { get; private set; }
-    public int TicketId { get; private set; }
-    public TicketHistoryType Type { get; private set; }
-    public string Description { get; private set; } = string.Empty;
-    public DateTime CreatedAt { get; private set; }
-
-    public Ticket Ticket { get; private set; } = default!;
-
     private TicketHistory()
     {
     }
@@ -19,59 +9,106 @@ public class TicketHistory
     private TicketHistory(
         int ticketId,
         TicketHistoryType type,
-        string description)
+        string description,
+        int? actionByUserId)
     {
+        if (ticketId <= 0)
+        {
+            throw new ArgumentException(
+                "Ticket ID must be greater than zero.",
+                nameof(ticketId));
+        }
+
+        if (actionByUserId.HasValue && actionByUserId.Value <= 0)
+        {
+            throw new ArgumentException(
+                "Action by user ID must be greater than zero.",
+                nameof(actionByUserId));
+        }
+
         TicketId = ticketId;
         Type = type;
         Description = description;
+        ActionByUserId = actionByUserId;
         CreatedAt = DateTime.UtcNow;
     }
 
-    public static TicketHistory Created(int ticketId)
+    public int TicketId { get; private set; }
+
+    public TicketHistoryType Type { get; private set; }
+
+    public string Description { get; private set; } = string.Empty;
+
+    public int? ActionByUserId { get; private set; }
+
+    public DateTime CreatedAt { get; private set; }
+
+    public Ticket Ticket { get; private set; } = null!;
+
+    public static TicketHistory Created(
+        int ticketId,
+        int? actionByUserId)
     {
         return new TicketHistory(
             ticketId,
             TicketHistoryType.Created,
-            "Ticket created.");
+            "Ticket created.",
+            actionByUserId);
     }
 
-    public static TicketHistory Assigned(int ticketId, int userId)
+    public static TicketHistory Assigned(
+        int ticketId,
+        int userId,
+        int? actionByUserId)
     {
         return new TicketHistory(
             ticketId,
             TicketHistoryType.Assigned,
-            $"Assigned to user with Id = {userId}.");
+            $"Assigned to user with Id = {userId}.",
+            actionByUserId);
     }
 
-    public static TicketHistory Started(int ticketId)
+    public static TicketHistory Started(
+        int ticketId,
+        int? actionByUserId)
     {
         return new TicketHistory(
             ticketId,
             TicketHistoryType.Started,
-            "Work started.");
+            "Work started.",
+            actionByUserId);
     }
 
-    public static TicketHistory Resolved(int ticketId)
+    public static TicketHistory Resolved(
+        int ticketId,
+        int? actionByUserId)
     {
         return new TicketHistory(
             ticketId,
             TicketHistoryType.Resolved,
-            "Ticket resolved.");
+            "Ticket resolved.",
+            actionByUserId);
     }
 
-    public static TicketHistory Closed(int ticketId)
+    public static TicketHistory Closed(
+        int ticketId,
+        int? actionByUserId)
     {
         return new TicketHistory(
             ticketId,
             TicketHistoryType.Closed,
-            "Ticket closed.");
+            "Ticket closed.",
+            actionByUserId);
     }
 
-    public static TicketHistory Reopened(int ticketId)
+    public static TicketHistory Reopened(
+        int ticketId,
+        int? actionByUserId)
     {
         return new TicketHistory(
             ticketId,
             TicketHistoryType.Reopened,
-            "Ticket reopened.");
+            "Ticket reopened.",
+            actionByUserId);
     }
 }
