@@ -6,6 +6,7 @@
     <Project Path="src/HelpDesk.Infrastructure/HelpDesk.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/HelpDesk.Application.Tests/HelpDesk.Application.Tests.csproj" />
     <Project Path="tests/HelpDesk.Domain.Tests/HelpDesk.Domain.Tests.csproj" />
   </Folder>
 </Solution>

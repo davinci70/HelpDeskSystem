@@ -2,6 +2,8 @@
 
 public sealed class User : AggregateRoot
 {
+    private readonly List<UserNotificationDevice> _notificationDevices = [];
+
     private User()
     {
     }
@@ -23,6 +25,8 @@ public sealed class User : AggregateRoot
 
         Role = role;
     }
+
+    public IReadOnlyCollection<UserNotificationDevice> NotificationDevices => _notificationDevices.AsReadOnly();
 
     public string FullName { get; private set; } = string.Empty;
 

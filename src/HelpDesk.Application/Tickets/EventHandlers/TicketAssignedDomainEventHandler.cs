@@ -1,5 +1,4 @@
-﻿using HelpDesk.Domain.Entities.Tickets.Events;
-namespace HelpDesk.Application.Tickets.EventHandlers;
+﻿namespace HelpDesk.Application.Tickets.EventHandlers;
 
 public sealed class TicketAssignedDomainEventHandler
     : INotificationHandler<DomainEventNotification<TicketAssignedDomainEvent>>

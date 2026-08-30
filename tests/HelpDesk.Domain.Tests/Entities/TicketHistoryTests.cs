@@ -1,5 +1,5 @@
 ﻿using FluentAssertions;
-using HelpDesk.Domain.Entities;
+using HelpDesk.Domain.Entities.Tickets;
 using HelpDesk.Domain.Enums;
 
 namespace HelpDesk.Domain.Tests.Entities;

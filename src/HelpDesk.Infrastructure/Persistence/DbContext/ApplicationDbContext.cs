@@ -14,6 +14,7 @@ public sealed class ApplicationDbContext : Microsoft.EntityFrameworkCore.DbConte
     public DbSet<TicketComment> TicketComments => Set<TicketComment>();
     public DbSet<TicketHistory> TicketHistories => Set<TicketHistory>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<UserNotificationDevice> UserNotificationDevices => Set<UserNotificationDevice>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

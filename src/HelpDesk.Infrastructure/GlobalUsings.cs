@@ -17,3 +17,4 @@ global using Microsoft.AspNetCore.Identity;
 global using HelpDesk.Infrastructure.Security;
 global using Microsoft.AspNetCore.Http;
 global using System.Security.Claims;
+global using HelpDesk.Domain.Entities.Notifications;

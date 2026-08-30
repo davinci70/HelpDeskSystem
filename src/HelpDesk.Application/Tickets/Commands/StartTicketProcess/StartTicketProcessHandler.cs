@@ -13,10 +13,12 @@ public sealed class StartTicketProcessHandler(IApplicationDbContext context, ICu
         if (ticket is null)
             return Result.Failure(TicketErrors.TicketNotFound);
 
-        if (ticket.StartProgress(_currentUser.UserId!.Value) == TicketTransitionResult.InvalidStatus)
+        var transitionResult = ticket.StartProgress(_currentUser.UserId!.Value);
+
+        if (transitionResult == TicketTransitionResult.InvalidStatus)
             return Result.Failure(TicketErrors.CannotStart);
 
-        if (ticket.StartProgress(_currentUser.UserId!.Value) == TicketTransitionResult.NotAssigned)
+        if (transitionResult == TicketTransitionResult.NotAssigned)
             return Result.Failure(TicketErrors.NotAssigned);
 
         await _context.SaveChangesAsync(cancellationToken);

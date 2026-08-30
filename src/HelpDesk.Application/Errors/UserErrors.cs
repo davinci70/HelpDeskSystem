@@ -7,4 +7,7 @@ public class UserErrors
     
     public static Error InvalidCredentials =
         new("Users.InvalidCredentials", "Invalid email or password.", StatusCodes.Status404NotFound);
+    
+    public static Error Unauthorized =
+        new("NotificationDevices.Unauthorized", "The current user is not authenticated.", StatusCodes.Status401Unauthorized);
 }

@@ -12,7 +12,9 @@ public class ResolveTicketCommandHandler(IApplicationDbContext context, ICurrent
         if (ticket is null)
             return Result.Failure(TicketErrors.TicketNotFound);
 
-        if (ticket.Resolve(_currentUser.UserId!.Value) == TicketTransitionResult.InvalidStatus)
+        var result = ticket.Resolve(_currentUser.UserId!.Value);
+
+        if (result == TicketTransitionResult.InvalidStatus)
             return Result.Failure(TicketErrors.CannotResolve);
 
         await _context.SaveChangesAsync(cancellationToken);
