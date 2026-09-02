@@ -22,3 +22,4 @@ global using HelpDesk.Domain.Entities.Tickets;
 global using HelpDesk.Domain.Entities.Users;
 global using HelpDesk.Application.Common.Interfaces;
 global using HelpDesk.Domain.Entities.Notifications;
+global using HelpDesk.Application.Notifications;

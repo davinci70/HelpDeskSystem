@@ -1,18 +1,12 @@
 ﻿namespace HelpDesk.Application.Tickets.EventHandlers;
 
-public sealed class TicketAssignedDomainEventHandler
-    : INotificationHandler<DomainEventNotification<TicketAssignedDomainEvent>>
+public sealed class TicketAssignedDomainEventHandler(IApplicationDbContext context, INotificationService notificationService)
+        : INotificationHandler<DomainEventNotification<TicketAssignedDomainEvent>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContext _context = context;
+    private readonly INotificationService _notificationService = notificationService;
 
-    public TicketAssignedDomainEventHandler(IApplicationDbContext context)
-    {
-        _context = context;
-    }
-
-    public Task Handle(
-        DomainEventNotification<TicketAssignedDomainEvent> notification,
-        CancellationToken cancellationToken)
+    public async Task Handle(DomainEventNotification<TicketAssignedDomainEvent> notification, CancellationToken cancellationToken)
     {
         _context.TicketHistories.Add(
             TicketHistory.Assigned(
@@ -20,6 +14,10 @@ public sealed class TicketAssignedDomainEventHandler
                 notification.DomainEvent.UserId,
                 notification.DomainEvent.ActionByUserId));
 
-        return Task.CompletedTask;
+        await _notificationService.SendToUserAsync(
+            notification.DomainEvent.UserId,
+            "Ticket Assigned",
+            $"Ticket #{notification.DomainEvent.TicketId} has been assigned to you.",
+            cancellationToken);
     }
 }

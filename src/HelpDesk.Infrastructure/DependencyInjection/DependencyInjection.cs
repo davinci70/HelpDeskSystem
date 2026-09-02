@@ -12,6 +12,8 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider => 
             provider.GetRequiredService<ApplicationDbContext>());
 
+        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
+
         services.AddHttpContextAccessor();
 
         services.AddScoped<IDomainEventDispatcher, DomainEventDispatcher>();
@@ -20,9 +22,18 @@ public static class DependencyInjection
 
         services.AddScoped<IJwtProvider, JwtProvider>();
 
-        services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
-
         services.AddScoped<ICurrentUserService, CurrentUserService>();
+
+        if (FirebaseApp.DefaultInstance is null)
+        {
+            FirebaseApp.Create(new AppOptions
+            {
+                Credential = GoogleCredential.GetApplicationDefault(),
+                ProjectId = configuration["Firebase:ProjectId"]
+            });
+        }
+
+        services.AddScoped<INotificationSender, FirebaseNotificationSender>();
 
         return services;
     }

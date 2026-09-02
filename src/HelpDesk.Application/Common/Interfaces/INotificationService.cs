@@ -1,0 +1,6 @@
+﻿namespace HelpDesk.Application.Common.Interfaces;
+
+public interface INotificationService
+{
+    Task SendToUserAsync(int userId, string title, string body, CancellationToken cancellationToken = default);
+}

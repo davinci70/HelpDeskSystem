@@ -2,5 +2,5 @@
 
 public interface INotificationSender
 {
-    Task SendAsync(string token, string title, string body);
+    Task SendAsync(string token, string title, string body, CancellationToken cancellationToken = default);
 }

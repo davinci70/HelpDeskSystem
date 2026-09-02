@@ -13,6 +13,8 @@ public static class DependencyInjection
 
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
 
+        services.AddScoped<INotificationService, NotificationService>();
+
         services
             .AddMapsterConfig();
         return services;

@@ -18,3 +18,7 @@ global using HelpDesk.Infrastructure.Security;
 global using Microsoft.AspNetCore.Http;
 global using System.Security.Claims;
 global using HelpDesk.Domain.Entities.Notifications;
+global using HelpDesk.Infrastructure.Notifications.Firebase;
+global using FirebaseAdmin.Messaging;
+global using FirebaseAdmin;
+global using Google.Apis.Auth.OAuth2;
