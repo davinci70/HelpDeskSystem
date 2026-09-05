@@ -1,22 +1,24 @@
 ﻿namespace HelpDesk.Application.Tickets.EventHandlers;
 
-public sealed class TicketStartedDomainEventHandler
-        : INotificationHandler<DomainEventNotification<TicketStartedDomainEvent>>
+public sealed class TicketStartedDomainEventHandler(IApplicationDbContext context, INotificationService notificationService)
+                : INotificationHandler<DomainEventNotification<TicketStartedDomainEvent>>
 {
-    private readonly IApplicationDbContext _context;
+    private readonly IApplicationDbContext _context = context;
+    private readonly INotificationService _notificationService = notificationService;
 
-    public TicketStartedDomainEventHandler(IApplicationDbContext context)
-    {
-        _context = context;
-    }
-
-    public Task Handle(
+    public async Task Handle(
         DomainEventNotification<TicketStartedDomainEvent> notification,
         CancellationToken cancellationToken)
     {
         _context.TicketHistories.Add(
             TicketHistory.Started(notification.DomainEvent.TicketId, notification.DomainEvent.ActionByUserId));
 
-        return Task.CompletedTask;
+        var ticket = await _context.Tickets
+            .FirstOrDefaultAsync(x => x.Id == notification.DomainEvent.TicketId, cancellationToken);
+
+        if (ticket is null)
+            return;
+
+        await _notificationService.SendToUserAsync(ticket.CreatedByUserId, "Ticket Started", $"Ticket #{ticket.Id} has been started.", cancellationToken);
     }
 }
