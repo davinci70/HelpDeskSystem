@@ -132,16 +132,35 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
                     b.Property<string>("Content")
                         .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("nvarchar(1000)");
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<DateTime>("CreatedAtUtc")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("CreatedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("DeletedAtUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("DeletedByUserId")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("IsInternal")
+                        .HasColumnType("bit");
+
                     b.Property<int>("TicketId")
                         .HasColumnType("int");
 
+                    b.Property<DateTime?>("UpdatedAtUtc")
+                        .HasColumnType("datetime2");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedByUserId");
+
+                    b.HasIndex("DeletedByUserId");
 
                     b.HasIndex("TicketId");
 
@@ -255,11 +274,26 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("HelpDesk.Domain.Entities.Tickets.TicketComment", b =>
                 {
+                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "CreatedByUser")
+                        .WithMany("CreatedTicketComments")
+                        .HasForeignKey("CreatedByUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("HelpDesk.Domain.Entities.Users.User", "DeletedByUser")
+                        .WithMany("DeletedTicketComments")
+                        .HasForeignKey("DeletedByUserId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("HelpDesk.Domain.Entities.Tickets.Ticket", "Ticket")
                         .WithMany("Comments")
                         .HasForeignKey("TicketId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("CreatedByUser");
+
+                    b.Navigation("DeletedByUser");
 
                     b.Navigation("Ticket");
                 });
@@ -287,6 +321,10 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
 
             modelBuilder.Entity("HelpDesk.Domain.Entities.Users.User", b =>
                 {
+                    b.Navigation("CreatedTicketComments");
+
+                    b.Navigation("DeletedTicketComments");
+
                     b.Navigation("NotificationDevices");
                 });
 #pragma warning restore 612, 618

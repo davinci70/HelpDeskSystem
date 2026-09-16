@@ -25,7 +25,7 @@ public sealed class Ticket : AggregateRoot
 
         if (createdByUserId <= 0)
             throw new ArgumentException(
-                "Created by user ID must be greater than zero.",
+                "User ID must be greater than zero.",
                 nameof(createdByUserId));
 
         CategoryId = categoryId;
@@ -60,9 +60,12 @@ public sealed class Ticket : AggregateRoot
     public IReadOnlyCollection<TicketComment> Comments =>
         _comments.AsReadOnly();
 
-    public TicketComment AddComment(string content)
+    public TicketComment AddComment(string content, int createdByUserId, bool isInternal)
     {
-        var comment = TicketComment.Create(content);
+        if (Status == TicketStatus.Closed)
+            throw new InvalidOperationException("Cannot add a comment to a closed ticket.");
+
+        var comment = TicketComment.Create(content, createdByUserId, isInternal);
 
         _comments.Add(comment);
 

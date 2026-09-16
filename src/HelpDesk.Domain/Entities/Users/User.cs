@@ -1,8 +1,12 @@
-﻿namespace HelpDesk.Domain.Entities.Users;
+﻿using HelpDesk.Domain.Entities.Tickets;
+
+namespace HelpDesk.Domain.Entities.Users;
 
 public sealed class User : AggregateRoot
 {
     private readonly List<UserNotificationDevice> _notificationDevices = [];
+    private readonly List<TicketComment> _createdTicketComments = [];
+    private readonly List<TicketComment> _deletedTicketComments = [];
 
     private User()
     {
@@ -27,6 +31,8 @@ public sealed class User : AggregateRoot
     }
 
     public IReadOnlyCollection<UserNotificationDevice> NotificationDevices => _notificationDevices.AsReadOnly();
+    public IReadOnlyCollection<TicketComment> CreatedTicketComments => _createdTicketComments.AsReadOnly();
+    public IReadOnlyCollection<TicketComment> DeletedTicketComments => _deletedTicketComments.AsReadOnly();
 
     public string FullName { get; private set; } = string.Empty;
 
