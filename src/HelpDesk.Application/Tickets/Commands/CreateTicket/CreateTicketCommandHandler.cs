@@ -38,11 +38,6 @@ public sealed class CreateTicketCommandHandler(
 
         await _context.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation(
-            "Ticket {TicketId} created by user {UserId}.",
-            ticket.Id,
-            ticket.CreatedByUserId);
-
         return Result.Success(
             ticket.Adapt<CreateTicketResponse>());
     }

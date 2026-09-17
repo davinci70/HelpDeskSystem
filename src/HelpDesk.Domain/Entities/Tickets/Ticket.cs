@@ -86,8 +86,8 @@ public sealed class Ticket : AggregateRoot
             priority,
             createdByUserId);
 
-        ticket.RaiseDomainEvent(
-            new TicketCreatedDomainEvent(ticket));
+        //ticket.RaiseDomainEvent(
+        //    new TicketCreatedDomainEvent(ticket));
 
         return ticket;
     }
@@ -105,7 +105,7 @@ public sealed class Ticket : AggregateRoot
 
         AssigneeId = userId;
 
-        RaiseDomainEvent(new TicketAssignedDomainEvent(Id, userId, actionByUserId));
+        //RaiseDomainEvent(new TicketAssignedDomainEvent(Id, userId, actionByUserId));
     }
 
     public TicketTransitionResult StartProgress(int? actionByUserId)
@@ -120,7 +120,7 @@ public sealed class Ticket : AggregateRoot
 
         Status = TicketStatus.InProgress;
 
-        RaiseDomainEvent(new TicketStartedDomainEvent(Id, actionByUserId));
+        //RaiseDomainEvent(new TicketStartedDomainEvent(Id, actionByUserId));
 
         return TicketTransitionResult.Success;
     }
@@ -134,7 +134,7 @@ public sealed class Ticket : AggregateRoot
 
         Status = TicketStatus.Resolved;
 
-        RaiseDomainEvent(new TicketResolvedDomainEvent(Id, actionByUserId));
+        //RaiseDomainEvent(new TicketResolvedDomainEvent(Id, actionByUserId));
 
         return TicketTransitionResult.Success;
     }
@@ -148,7 +148,7 @@ public sealed class Ticket : AggregateRoot
 
         Status = TicketStatus.Closed;
 
-        RaiseDomainEvent(new TicketClosedDomainEvent(Id, actionByUserId));
+        //RaiseDomainEvent(new TicketClosedDomainEvent(Id, actionByUserId));
 
         return TicketTransitionResult.Success;
     }
@@ -162,7 +162,7 @@ public sealed class Ticket : AggregateRoot
 
         Status = TicketStatus.Open;
 
-        RaiseDomainEvent(new TicketReopenedDomainEvent(Id, actionByUserId));
+       // RaiseDomainEvent(new TicketReopenedDomainEvent(Id, actionByUserId));
 
         return TicketTransitionResult.Success;
     }

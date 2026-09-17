@@ -70,4 +70,11 @@ public class TicketsController(ISender sender) : ControllerBase
         var result = await _sender.Send(new ReopenTicketCommand(Id), cancellationToken);
         return result.IsSuccess ? NoContent() : result.ToProblem();
     }
+
+    [HttpPost("{Id}/comments")]
+    public async Task<IActionResult> AddComment([FromRoute] int Id, [FromBody] CreateTicketCommentRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(request.Adapt<CreateTicketCommentCommand>() with { TicketId = Id }, cancellationToken);
+        return result.IsSuccess ? StatusCode(StatusCodes.Status201Created, result.Value) : result.ToProblem();
+    }
 }
