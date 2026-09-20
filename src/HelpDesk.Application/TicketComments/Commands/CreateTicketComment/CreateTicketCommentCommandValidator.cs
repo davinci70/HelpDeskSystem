@@ -1,4 +1,4 @@
-﻿namespace HelpDesk.Application.TicketComments.Commands;
+﻿namespace HelpDesk.Application.TicketComments.Commands.CreateTicketComment;
 
 public class CreateTicketCommentCommandValidator : AbstractValidator<CreateTicketCommentCommand>
 {

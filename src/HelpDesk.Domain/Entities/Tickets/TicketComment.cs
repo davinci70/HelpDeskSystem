@@ -42,6 +42,9 @@ public sealed class TicketComment : Entity
         if (DeletedAtUtc.HasValue)
             throw new InvalidOperationException("Cannot update a deleted comment.");
 
+        if (Ticket.Status == TicketStatus.Closed)
+            throw new InvalidOperationException("Cannot update a comment on a closed ticket.");
+
         Content = NormalizeContent(content);
         UpdatedAtUtc = DateTime.UtcNow;
     }

@@ -1,4 +1,4 @@
-﻿namespace HelpDesk.Application.TicketComments.Commands;
+﻿namespace HelpDesk.Application.TicketComments.Commands.CreateTicketComment;
 
 public sealed class CreateTicketCommentCommandHandler(IApplicationDbContext context, ICurrentUserService currentUserService)
     : IRequestHandler<CreateTicketCommentCommand, Result<CreateTicketCommentResponse>>

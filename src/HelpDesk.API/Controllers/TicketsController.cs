@@ -1,4 +1,8 @@
-﻿namespace HelpDesk.API.Controllers;
+﻿using HelpDesk.Application.TicketComments.Commands.CreateTicketComment;
+using HelpDesk.Application.TicketComments.Commands.UpdateTicketComment;
+using HelpDesk.Domain.Entities.Tickets;
+
+namespace HelpDesk.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -82,6 +86,13 @@ public class TicketsController(ISender sender) : ControllerBase
     public async Task<IActionResult> GetComments([FromRoute] int Id, [FromQuery] GetTicketCommentsQuery request, CancellationToken cancellationToken)
     {
         var result = await _sender.Send(request with { TicketId = Id}, cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
+
+    [HttpPatch("{TicketId}/comments/{CommentId}")]
+    public async Task<IActionResult> UpdateComment([FromRoute] int TicketId, [FromRoute] int CommentId, [FromBody] UpdateTicketCommentRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(request.Adapt<UpdateTicketCommentCommand>() with { TicketId = TicketId, CommentId = CommentId }, cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 }

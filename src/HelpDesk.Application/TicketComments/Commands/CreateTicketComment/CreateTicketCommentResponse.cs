@@ -1,4 +1,4 @@
-﻿namespace HelpDesk.Application.TicketComments.Commands;
+﻿namespace HelpDesk.Application.TicketComments.Commands.CreateTicketComment;
 
 public sealed record CreateTicketCommentResponse(
         int Id,
