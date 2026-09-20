@@ -25,3 +25,4 @@ global using Microsoft.AspNetCore.Authorization;
 global using Serilog;
 global using HelpDesk.API.Contracts.TicketComments;
 global using HelpDesk.Application.TicketComments.Commands;
+global using HelpDesk.Application.TicketComments.Queries;

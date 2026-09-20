@@ -1,7 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace HelpDesk.Infrastructure.Persistence.Configurations;
+﻿namespace HelpDesk.Infrastructure.Persistence.Configurations;
 
 public sealed class TicketCommentConfiguration : IEntityTypeConfiguration<TicketComment>
 {

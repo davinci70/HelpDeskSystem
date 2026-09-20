@@ -77,4 +77,11 @@ public class TicketsController(ISender sender) : ControllerBase
         var result = await _sender.Send(request.Adapt<CreateTicketCommentCommand>() with { TicketId = Id }, cancellationToken);
         return result.IsSuccess ? StatusCode(StatusCodes.Status201Created, result.Value) : result.ToProblem();
     }
+
+    [HttpGet("{Id}/comments")]
+    public async Task<IActionResult> GetComments([FromRoute] int Id, [FromQuery] GetTicketCommentsQuery request, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(request with { TicketId = Id}, cancellationToken);
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
 }
