@@ -36,7 +36,7 @@ public sealed class GetTicketCommentsQueryHandler(IApplicationDbContext context,
 
     private IQueryable<TicketComment> ApplyCommentVisibility(IQueryable<TicketComment> query)
     {
-        if (_currentUser.Role == UserRole.Customer.ToString())
+        if (_currentUser.Role == nameof(UserRole.Customer))
             query = query.Where(t => !t.IsInternal);
         
         return query;
@@ -53,13 +53,13 @@ public sealed class GetTicketCommentsQueryHandler(IApplicationDbContext context,
 
         return _currentUser.Role switch
         {
-            var role when role == UserRole.Admin.ToString()
+            nameof(UserRole.Admin)
                 => true,
 
-            var role when role == UserRole.Customer.ToString()
+            nameof(UserRole.Customer)
                 => ticket.CreatedByUserId == _currentUser.UserId,
 
-            var role when role == UserRole.Agent.ToString()
+            nameof(UserRole.Agent)
                 => ticket.AssigneeId == _currentUser.UserId,
 
             _ => false
