@@ -59,6 +59,9 @@ public sealed class TicketComment : Entity
                 "User ID must be greater than zero.",
                 nameof(deletedByUserId));
 
+        if (Ticket.Status == TicketStatus.Closed)
+            throw new InvalidOperationException("Cannot delete a comment on a closed ticket.");
+
         DeletedAtUtc = DateTime.UtcNow;
         DeletedByUserId = deletedByUserId;
     }

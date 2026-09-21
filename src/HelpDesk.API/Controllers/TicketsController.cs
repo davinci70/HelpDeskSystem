@@ -1,8 +1,4 @@
-﻿using HelpDesk.Application.TicketComments.Commands.CreateTicketComment;
-using HelpDesk.Application.TicketComments.Commands.UpdateTicketComment;
-using HelpDesk.Domain.Entities.Tickets;
-
-namespace HelpDesk.API.Controllers;
+﻿namespace HelpDesk.API.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
@@ -94,5 +90,12 @@ public class TicketsController(ISender sender) : ControllerBase
     {
         var result = await _sender.Send(request.Adapt<UpdateTicketCommentCommand>() with { TicketId = TicketId, CommentId = CommentId }, cancellationToken);
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
+
+    [HttpDelete("{TicketId}/comments/{CommentId}")]
+    public async Task<IActionResult> DeleteComment([FromRoute] int TicketId, [FromRoute] int CommentId, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new DeleteTicketCommentCommand(TicketId, CommentId), cancellationToken);
+        return result.IsSuccess ? NoContent() : result.ToProblem();
     }
 }
