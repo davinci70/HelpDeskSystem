@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
-namespace HelpDesk.API;
+namespace HelpDesk.API.DependencyInjection;
 
 public static class DependencyInjection
 {

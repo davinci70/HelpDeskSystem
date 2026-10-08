@@ -27,9 +27,4 @@
     <ProjectReference Include="..\HelpDesk.Infrastructure\HelpDesk.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="DependencyInjection\" />
-    <Folder Include="Middleware\" />
-  </ItemGroup>
-
 </Project>

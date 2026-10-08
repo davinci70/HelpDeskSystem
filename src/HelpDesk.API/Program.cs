@@ -1,3 +1,5 @@
+using HelpDesk.API.DependencyInjection;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((context, services, configuration) =>

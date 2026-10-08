@@ -24,7 +24,5 @@ public class NotificationService(IApplicationDbContext context, INotificationSen
                 device.Deactivate();
             }
         }
-
-        await _context.SaveChangesAsync(cancellationToken);
     }
 }
