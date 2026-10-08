@@ -16,7 +16,11 @@ public enum TicketHistoryType
 
     CommentAdded = 7,
 
-    PriorityChanged = 8,
+    CommentUpdated = 8,
 
-    CategoryChanged = 9
+    CommentDeleted = 9,
+
+    PriorityChanged = 10,
+
+    CategoryChanged = 11
 }

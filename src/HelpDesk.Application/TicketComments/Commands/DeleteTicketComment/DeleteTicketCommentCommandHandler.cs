@@ -21,7 +21,7 @@ public class DeleteTicketCommentCommandHandler(IApplicationDbContext context, IC
         if (!UserCanDeleteComment(comment))
             return Result.Failure(TicketCommentErrors.CommentAccessDenied);
 
-        comment.Delete(_currentUser.UserId!.Value);
+        comment.Ticket.DeleteComment(comment, _currentUser.UserId!.Value);
 
         await _context.SaveChangesAsync(cancellationToken);
 

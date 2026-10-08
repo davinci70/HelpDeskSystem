@@ -1,4 +1,7 @@
-﻿namespace HelpDesk.Domain.Entities.Tickets;
+﻿using HelpDesk.Domain.Entities.Tickets.Events.TicketCommentEvents;
+using HelpDesk.Domain.Entities.Tickets.Events.TicketEvents;
+
+namespace HelpDesk.Domain.Entities.Tickets;
 
 public sealed class Ticket : AggregateRoot
 {
@@ -63,13 +66,42 @@ public sealed class Ticket : AggregateRoot
     public TicketComment AddComment(string content, int createdByUserId, bool isInternal)
     {
         if (Status == TicketStatus.Closed)
-            throw new InvalidOperationException("Cannot add a comment to a closed ticket.");
+            throw new InvalidOperationException(
+                "Cannot add a comment to a closed ticket.");
 
         var comment = TicketComment.Create(content, createdByUserId, isInternal);
 
         _comments.Add(comment);
 
+        RaiseDomainEvent(new TicketCommentAddedDomainEvent(comment, createdByUserId));
+
         return comment;
+    }
+
+    public void UpdateComment(TicketComment comment, string content, int actionByUserId)
+    {
+        if (comment.TicketId != Id)
+        {
+            throw new InvalidOperationException(
+                "The comment does not belong to this ticket.");
+        }
+
+        comment.UpdateContent(content);
+
+        RaiseDomainEvent(new TicketCommentUpdatedDomainEvent(Id, comment.Id, actionByUserId));
+    }
+
+    public void DeleteComment(TicketComment comment, int deletedByUserId)
+    {
+        if (comment.TicketId != Id)
+        {
+            throw new InvalidOperationException(
+                "The comment does not belong to this ticket.");
+        }
+
+        comment.Delete(deletedByUserId);
+
+        RaiseDomainEvent(new TicketCommentDeletedDomainEvent(Id, comment.Id, deletedByUserId));
     }
 
     public static Ticket Create(

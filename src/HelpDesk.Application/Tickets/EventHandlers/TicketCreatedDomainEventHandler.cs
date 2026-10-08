@@ -1,4 +1,6 @@
-﻿namespace HelpDesk.Application.Tickets.EventHandlers;
+﻿using HelpDesk.Domain.Entities.Tickets.Events.TicketEvents;
+
+namespace HelpDesk.Application.Tickets.EventHandlers;
 
 public sealed class TicketCreatedDomainEventHandler
     : INotificationHandler<DomainEventNotification<TicketCreatedDomainEvent>>

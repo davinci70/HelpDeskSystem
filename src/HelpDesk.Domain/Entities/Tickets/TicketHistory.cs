@@ -10,7 +10,8 @@ public sealed class TicketHistory : Entity
         int ticketId,
         TicketHistoryType type,
         string description,
-        int? actionByUserId)
+        int? actionByUserId,
+        int? ticketCommentId = null)
     {
         if (ticketId <= 0)
         {
@@ -26,10 +27,18 @@ public sealed class TicketHistory : Entity
                 nameof(actionByUserId));
         }
 
+        if (ticketCommentId.HasValue && ticketCommentId.Value <= 0)
+        {
+            throw new ArgumentException(
+                "Ticket comment ID must be greater than zero.",
+                nameof(ticketCommentId));
+        }
+
         TicketId = ticketId;
         Type = type;
         Description = description;
         ActionByUserId = actionByUserId;
+        TicketCommentId = ticketCommentId;
         CreatedAt = DateTime.UtcNow;
     }
 
@@ -40,6 +49,8 @@ public sealed class TicketHistory : Entity
     public string Description { get; private set; } = string.Empty;
 
     public int? ActionByUserId { get; private set; }
+
+    public int? TicketCommentId { get; private set; }
 
     public DateTime CreatedAt { get; private set; }
 
@@ -110,5 +121,44 @@ public sealed class TicketHistory : Entity
             TicketHistoryType.Reopened,
             "Ticket reopened.",
             actionByUserId);
+    }
+
+    public static TicketHistory CommentAdded(
+        int ticketId,
+        int commentId,
+        int actionByUserId)
+    {
+        return new TicketHistory(
+            ticketId,
+            TicketHistoryType.CommentAdded,
+            "Comment added.",
+            actionByUserId,
+            commentId);
+    }
+
+    public static TicketHistory CommentUpdated(
+        int ticketId,
+        int commentId,
+        int actionByUserId)
+    {
+        return new TicketHistory(
+            ticketId,
+            TicketHistoryType.CommentUpdated,
+            "Comment updated.",
+            actionByUserId,
+            commentId);
+    }
+
+    public static TicketHistory CommentDeleted(
+        int ticketId,
+        int commentId,
+        int actionByUserId)
+    {
+        return new TicketHistory(
+            ticketId,
+            TicketHistoryType.CommentDeleted,
+            "Comment deleted.",
+            actionByUserId,
+            commentId);
     }
 }

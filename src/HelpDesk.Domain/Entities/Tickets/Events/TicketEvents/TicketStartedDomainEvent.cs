@@ -1,4 +1,4 @@
-﻿namespace HelpDesk.Domain.Entities.Tickets.Events;
+﻿namespace HelpDesk.Domain.Entities.Tickets.Events.TicketEvents;
 
 public sealed record TicketStartedDomainEvent(int TicketId, int? ActionByUserId) : IDomainEvent
 {

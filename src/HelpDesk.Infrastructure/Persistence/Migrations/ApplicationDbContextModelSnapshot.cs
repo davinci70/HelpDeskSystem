@@ -186,6 +186,9 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int?>("TicketCommentId")
+                        .HasColumnType("int");
+
                     b.Property<int>("TicketId")
                         .HasColumnType("int");
 
@@ -195,6 +198,8 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ActionByUserId");
+
+                    b.HasIndex("TicketCommentId");
 
                     b.HasIndex("TicketId");
 
@@ -303,6 +308,11 @@ namespace HelpDesk.Infrastructure.Persistence.Migrations
                     b.HasOne("HelpDesk.Domain.Entities.Users.User", null)
                         .WithMany()
                         .HasForeignKey("ActionByUserId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("HelpDesk.Domain.Entities.Tickets.TicketComment", null)
+                        .WithMany()
+                        .HasForeignKey("TicketCommentId")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("HelpDesk.Domain.Entities.Tickets.Ticket", "Ticket")

@@ -21,7 +21,7 @@ public sealed class UpdateTicketCommentCommandHandler(IApplicationDbContext cont
         if (!UserCanEditComment(comment))
             return Result.Failure<UpdateTicketCommentResponse>(TicketCommentErrors.CommentAccessDenied);
 
-        comment.UpdateContent(request.Content);
+        comment.Ticket.UpdateComment(comment, request.Content, _currentUser.UserId!.Value);
 
         await _context.SaveChangesAsync(cancellationToken);
 
