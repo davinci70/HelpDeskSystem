@@ -60,7 +60,7 @@ public sealed class GetTicketCommentsQueryHandler(IApplicationDbContext context,
                 => ticket.CreatedByUserId == _currentUser.UserId,
 
             nameof(UserRole.Agent)
-                => ticket.AssigneeId == _currentUser.UserId,
+                => true,
 
             _ => false
         };

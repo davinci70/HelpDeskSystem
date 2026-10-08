@@ -46,7 +46,7 @@ public class DeleteTicketCommentCommandHandler(IApplicationDbContext context, IC
                 => ticket.CreatedByUserId == _currentUser.UserId,
 
             nameof(UserRole.Agent)
-                => ticket.AssigneeId == _currentUser.UserId,
+                => true,
 
             _ => false
         };
@@ -59,8 +59,12 @@ public class DeleteTicketCommentCommandHandler(IApplicationDbContext context, IC
             nameof(UserRole.Admin)
                 => true,
 
-            nameof(UserRole.Customer) or nameof(UserRole.Agent)
+            nameof(UserRole.Customer)
                 => comment.CreatedByUserId == _currentUser.UserId,
+
+            nameof(UserRole.Agent)
+                => (comment.Ticket.AssigneeId != _currentUser.UserId && comment.CreatedByUserId == _currentUser.UserId && comment.IsInternal)
+                    || (comment.Ticket.AssigneeId == _currentUser.UserId && comment.CreatedByUserId == _currentUser.UserId),
 
             _ => false
         };

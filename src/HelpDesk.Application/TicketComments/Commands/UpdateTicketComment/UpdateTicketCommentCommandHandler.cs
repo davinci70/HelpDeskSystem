@@ -54,7 +54,7 @@ public sealed class UpdateTicketCommentCommandHandler(IApplicationDbContext cont
                 => ticket.CreatedByUserId == _currentUser.UserId,
 
             nameof(UserRole.Agent)
-                => ticket.AssigneeId == _currentUser.UserId,
+                => true,
 
             _ => false
         };
@@ -67,8 +67,12 @@ public sealed class UpdateTicketCommentCommandHandler(IApplicationDbContext cont
             nameof(UserRole.Admin)
                 => true,
 
-            nameof(UserRole.Customer) or nameof(UserRole.Agent)
+            nameof(UserRole.Customer)
                 => comment.CreatedByUserId == _currentUser.UserId,
+
+            nameof(UserRole.Agent)
+                => (comment.Ticket.AssigneeId != _currentUser.UserId && comment.CreatedByUserId == _currentUser.UserId && comment.IsInternal)
+                    || (comment.Ticket.AssigneeId == _currentUser.UserId && comment.CreatedByUserId == _currentUser.UserId),
 
             _ => false
         };

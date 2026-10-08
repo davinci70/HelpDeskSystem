@@ -10,4 +10,7 @@ public static class TicketCommentErrors
     
     public static readonly Error CommentAccessDenied =
         new ("TicketComments.AccessDenied", "Access to the ticket comment is denied", StatusCodes.Status403Forbidden);
+
+    public static readonly Error PublicCommentNotAllowed =
+        new("TicketComments.PublicCommentNotAllowed", "Public comments are not allowed for this user.", StatusCodes.Status403Forbidden);
 }
